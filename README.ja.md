@@ -1,18 +1,18 @@
 # pera
 
-**P**ick **E**asy **R**un **A**gents — a simple launcher to pick and run AI agents.
+**P**ick **E**asy **R**un **A**gents — AI エージェントを選んで起動する、シンプルなランチャーです。
 
-Run `pera` and pick a model or tool by number. It also syncs MCP server settings across your tools.
+`pera` を実行すると、モデルやツールを番号で選ぶだけで起動できます。MCP サーバーの設定も、各ツールへの同期をまとめて行えます。
 
-Works on Windows (PowerShell) and macOS (bash / zsh).
+Windows（PowerShell）と macOS（bash / zsh）の両方に対応しています。
 
-**[日本語](./README.ja.md)**
+**[English](./README.md)**
 
-## Installation
+## インストール
 
 ### Windows (PowerShell)
 
-Run this in your terminal to install to `~/.pera/pera.ps1` and register it in your profile:
+ターミナルで以下を実行するだけで、`~/.pera/pera.ps1` に配置してプロファイルへ自動登録します。
 
 ```powershell
 New-Item -ItemType Directory -Force -Path "$HOME\.pera" | Out-Null
@@ -23,7 +23,7 @@ Add-Content -Path $PROFILE -Value '. "$HOME\.pera\pera.ps1"'
 
 ### macOS (bash / zsh)
 
-Run this in your terminal to install to `~/.pera/pera.sh` and register it in `~/.zshrc` (or `~/.bashrc`):
+ターミナルで以下を実行するだけで、`~/.pera/pera.sh` に配置して `~/.zshrc`（または `~/.bashrc`）へ自動登録します。
 
 ```bash
 mkdir -p ~/.pera
@@ -32,9 +32,9 @@ echo 'source ~/.pera/pera.sh' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-## Usage
+## 使い方
 
-Run `pera` and pick a model by number:
+`pera` を実行すると、モデル一覧から番号で選ぶだけです。
 
 ```
 モデルを選択してください:
@@ -59,7 +59,7 @@ Run `pera` and pick a model by number:
 番号を入力 (0 でキャンセル):
 ```
 
-After picking a model, pick how to launch it:
+モデルを選ぶと、起動方法も番号で選べます。
 
 ```
 起動方法を選択してください (glm-5.2):
@@ -72,21 +72,21 @@ After picking a model, pick how to launch it:
 番号を入力 (0 でキャンセル):
 ```
 
-For claude you'll be asked about dangerous mode, and for codex about yolo mode.
+claude を選ぶと dangerous モード、codex を選ぶと yolo モードを使うか確認されます。
 
-## MCP Server Management
+## MCP サーバー管理
 
-`pera mcp` manages MCP server settings across tools (claude / codex / opencode / vscode / cursor).
+`pera mcp` で、各ツール（claude / codex / opencode / vscode / cursor）の MCP サーバー設定を一元管理できます。
 
-Write server definitions (`command` / `args` / `env`) in `mcp.json`, then distribute them to each tool's config file.
+`mcp.json` にサーバー定義（`command` / `args` / `env`）を書き、各ツールの設定ファイルに配布します。
 
 ```powershell
-pera mcp export   # collect MCP settings from all tools into mcp.json
-pera mcp sync     # distribute mcp.json to all tools
-pera mcp install  # distribute mcp.json to a specific tool
+pera mcp export   # 各ツールの MCP 設定を吸い出して mcp.json に集約
+pera mcp sync     # mcp.json を全ツールに配布
+pera mcp install  # mcp.json を指定ツールに配布
 ```
 
-### mcp.json format
+### mcp.json の形式
 
 ```json
 {
@@ -100,26 +100,26 @@ pera mcp install  # distribute mcp.json to a specific tool
 }
 ```
 
-### Supported tools and config files
+### 対応ツールと設定ファイル
 
-| Tool | Config file |
+| ツール | 設定ファイル |
 | --- | --- |
 | claude | `~/.claude.json` |
 | codex | `~/.codex/config.toml` |
 | opencode | `~/.config/opencode/opencode.json` |
-| vscode | `.vscode/mcp.json` (per-project) |
+| vscode | `.vscode/mcp.json`（プロジェクト単位） |
 | cursor | `~/.cursor/mcp.json` |
 
-## Adding Models
+## モデルの追加
 
-Add to the model definitions in `src/pera.ps1` (Windows) or `src/pera.sh` (macOS).
+`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）のモデル定義に追記します。
 
 ### Windows (PowerShell)
 
 ```powershell
 $script:OllamaModels = @{
     'glm-5.2' = 'glm-5.2:cloud'
-    # add here
+    # ここに追加
 }
 ```
 
@@ -128,10 +128,10 @@ $script:OllamaModels = @{
 ```bash
 declare -A OLLAMA_MODELS=(
     ['glm-5.2']='glm-5.2:cloud'
-    # add here
+    # ここに追加
 )
 ```
 
-## License
+## ライセンス
 
 [MIT](./LICENSE)
