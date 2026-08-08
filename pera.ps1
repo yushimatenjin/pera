@@ -6,8 +6,6 @@
 #   pera -list            ... モデル一覧を表示
 #   pera -launch <model>  ... 直接 launch で起動
 #   pera -run <model>     ... 直接 run で起動
-#   launch-<model>        ... モデルごとの launch ショートカット
-#   run-<model>           ... モデルごとの run ショートカット
 
 # ---- Ollama モデル定義 ----
 $script:OllamaModels = @{
@@ -36,15 +34,6 @@ function Get-OllamaModelTag {
     }
     Write-Error "不明なモデル: '$Name'。一覧は list-models を実行してください。"
     return $null
-}
-
-# モデルごとに launch-<model> / run-<model> 関数を生成
-foreach ($modelName in $script:OllamaModels.Keys) {
-    $tag = $script:OllamaModels[$modelName]
-    $launchBody = "ollama launch opencode --model $tag"
-    $runBody = "ollama run $tag"
-    New-Item -Path "function:launch-$modelName" -Value ([scriptblock]::Create($launchBody)) -Force | Out-Null
-    New-Item -Path "function:run-$modelName" -Value ([scriptblock]::Create($runBody)) -Force | Out-Null
 }
 
 function list-models {

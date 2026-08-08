@@ -11,7 +11,6 @@ Windows と macOS の両方に対応しています。
 - **モデル選択メニュー**: `pera` を実行すると Ollama モデル一覧から選択できます
 - **claude / codex 起動**: モデル選択メニューから claude（dangerous モード対応）と codex（yolo モード対応）も起動できます
 - **起動方法の選択**: opencode（`ollama launch`）/ claude / codex / run（`ollama run`）から選択
-- **ショートカット関数**: モデルごとに `launch-<model>` / `run-<model>` を自動生成
 
 ## 必要環境
 
@@ -48,8 +47,6 @@ pera                  # モデルと起動方法を選択して実行
 pera -list            # モデル一覧を表示
 pera -launch <model>  # 直接 launch で起動
 pera -run <model>     # 直接 run で起動
-launch-<model>        # モデルごとの launch ショートカット
-run-<model>           # モデルごとの run ショートカット
 ```
 
 ### 起動方法メニュー

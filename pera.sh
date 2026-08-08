@@ -7,8 +7,6 @@
 #   pera -list            ... モデル一覧を表示
 #   pera -launch <model>  ... 直接 launch で起動
 #   pera -run <model>     ... 直接 run で起動
-#   launch-<model>        ... モデルごとの launch ショートカット
-#   run-<model>           ... モデルごとの run ショートカット
 
 # ---- Ollama モデル定義 ----
 declare -A OLLAMA_MODELS=(
@@ -39,13 +37,6 @@ get_ollama_model_tag() {
     echo "不明なモデル: '$name'。一覧は list-models を実行してください。" >&2
     return 1
 }
-
-# モデルごとに launch-<model> / run-<model> 関数を生成
-for model_name in "${!OLLAMA_MODELS[@]}"; do
-    tag="${OLLAMA_MODELS[$model_name]}"
-    eval "launch-$model_name() { ollama launch opencode --model $tag; }"
-    eval "run-$model_name() { ollama run $tag; }"
-done
 
 list-models() {
     for model_name in $(printf '%s\n' "${!OLLAMA_MODELS[@]}" | sort); do
