@@ -6,6 +6,32 @@ PowerShell / bash で Ollama モデルと AI CLI（claude / codex）を選択式
 
 Windows と macOS の両方に対応しています。
 
+## インストール
+
+### Windows (PowerShell)
+
+ターミナルで以下を実行するだけで、`~/.pera/pera.ps1` に配置してプロファイルへ自動登録します。
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.pera" | Out-Null
+iwr https://raw.githubusercontent.com/yushimatenjin/pera/master/src/pera.ps1 -OutFile "$HOME\.pera\pera.ps1"
+Add-Content -Path $PROFILE -Value '. "$HOME\.pera\pera.ps1"'
+. $PROFILE
+```
+
+### macOS (bash / zsh)
+
+ターミナルで以下を実行するだけで、`~/.pera/pera.sh` に配置して `~/.zshrc`（または `~/.bashrc`）へ自動登録します。
+
+```bash
+mkdir -p ~/.pera
+curl -fsSL https://raw.githubusercontent.com/yushimatenjin/pera/master/src/pera.sh -o ~/.pera/pera.sh
+echo 'source ~/.pera/pera.sh' >> ~/.zshrc
+source ~/.zshrc
+```
+
+> 手動で入れる場合は、`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）をプロファイルから読み込んでください。
+
 ## デモ
 
 `pera` を実行すると、モデル一覧から番号で選ぶだけです。
@@ -63,52 +89,6 @@ claude を dangerous モードで起動しますか? (y/N):
 | [Ollama](https://ollama.com/) | opencode / run を使う場合 |
 | [Claude Code](https://claude.com/) | claude を使う場合 |
 | [Codex](https://openai.com/codex/) | codex を使う場合 |
-
-## インストール
-
-### Windows (PowerShell)
-
-ターミナルで以下を実行するだけで、`~/.pera/pera.ps1` に配置してプロファイルへ自動登録します。
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$HOME\.pera" | Out-Null
-iwr https://raw.githubusercontent.com/yushimatenjin/pera/master/src/pera.ps1 -OutFile "$HOME\.pera\pera.ps1"
-Add-Content -Path $PROFILE -Value '. "$HOME\.pera\pera.ps1"'
-. $PROFILE
-```
-
-### macOS (bash / zsh)
-
-ターミナルで以下を実行するだけで、`~/.pera/pera.sh` に配置して `~/.zshrc`（または `~/.bashrc`）へ自動登録します。
-
-```bash
-mkdir -p ~/.pera
-curl -fsSL https://raw.githubusercontent.com/yushimatenjin/pera/master/src/pera.sh -o ~/.pera/pera.sh
-echo 'source ~/.pera/pera.sh' >> ~/.zshrc
-source ~/.zshrc
-```
-
-> 手動で入れる場合は、`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）をプロファイルから読み込んでください。
-
-## 使い方
-
-```powershell
-pera                  # モデルと起動方法を選択して実行
-pera -list            # モデル一覧を表示
-pera -launch <model>  # 直接 launch で起動
-pera -run <model>     # 直接 run で起動
-```
-
-### 起動方法メニュー
-
-モデルを選ぶと、起動方法を選択できます。
-
-| 番号 | 起動方法 | コマンド |
-| --- | --- | --- |
-| 1 | opencode | `ollama launch opencode --model <tag>` |
-| 2 | claude | `claude`（dangerous モード確認あり） |
-| 3 | codex | `codex`（yolo モード確認あり） |
-| 4 | run | `ollama run <tag>` |
 
 ## モデルの追加
 
