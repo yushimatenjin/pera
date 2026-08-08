@@ -1,6 +1,8 @@
 # pera
 
-PowerShell / bash で Ollama モデルと AI CLI（claude / codex）を選択式メニューから起動するツールです。
+**P**ick **E**asy **R**un **A**gents — AI エージェント（claude / codex / opencode）を簡単に選んで起動するツールです。
+
+PowerShell / bash で Ollama モデルと AI CLI（claude / codex）を選択式メニューから起動します。
 
 Windows と macOS の両方に対応しています。
 
