@@ -25,20 +25,21 @@ Windows と macOS の両方に対応しています。
 
 ### Windows (PowerShell)
 
-```powershell
-# プロファイルに追加
-Add-Content -Path $PROFILE -Value '. "C:\path\to\pera.ps1"'
-```
+ターミナルで以下を実行するだけで、`~/.pera/pera.ps1` に配置してプロファイルへ自動登録します。
 
-または、プロファイルに直接貼り付けて使うこともできます。
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.pera" | Out-Null; iwr https://raw.githubusercontent.com/yushimatenjin/pera/master/pera.ps1 -OutFile "$HOME\.pera\pera.ps1"; Add-Content -Path $PROFILE -Value '. "$HOME\.pera\pera.ps1"'; . $PROFILE
+```
 
 ### macOS (bash / zsh)
 
+ターミナルで以下を実行するだけで、`~/.pera/pera.sh` に配置して `~/.zshrc`（または `~/.bashrc`）へ自動登録します。
+
 ```bash
-# ~/.zshrc または ~/.bashrc に追加
-echo 'source /path/to/pera.sh' >> ~/.zshrc
-source ~/.zshrc
+mkdir -p ~/.pera && curl -fsSL https://raw.githubusercontent.com/yushimatenjin/pera/master/pera.sh -o ~/.pera/pera.sh && echo 'source ~/.pera/pera.sh' >> ~/.zshrc && source ~/.zshrc
 ```
+
+> 手動で入れる場合は、`pera.ps1`（Windows）または `pera.sh`（macOS）をプロファイルから読み込んでください。
 
 ## 使い方
 
