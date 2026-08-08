@@ -465,6 +465,23 @@ function pera-mcp {
 }
 
 # ---- pera: モデル起動の選択式メニュー ----
+function Open-Editor {
+    param([string]$Editor)
+    $cwd = Get-Location
+    switch ($Editor) {
+        'vscode' {
+            if (Get-Command code -ErrorAction SilentlyContinue) { code $cwd }
+            elseif ($IsWindows) { Start-Process "code" -ArgumentList $cwd }
+            else { Start-Process "code" -ArgumentList $cwd }
+        }
+        'cursor' {
+            if (Get-Command cursor -ErrorAction SilentlyContinue) { cursor $cwd }
+            elseif ($IsWindows) { Start-Process "cursor" -ArgumentList $cwd }
+            else { Start-Process "cursor" -ArgumentList $cwd }
+        }
+    }
+}
+
 function pera {
     [CmdletBinding()]
     param(
@@ -528,9 +545,11 @@ function pera {
     if (-not ($Launch -or $Run)) {
         Write-Host "起動方法を選択してください ($Model):" -ForegroundColor Cyan
         Write-Host "  1) opencode ... ollama launch opencode で起動"
-        Write-Host "  2) claude   ... claude --dangerously-skip-permissions で起動"
+        Write-Host "  2) claude   ... claude で起動"
         Write-Host "  3) codex    ... codex で起動"
-        Write-Host "  4) run      ... ollama run で起動（初回取得用）"
+        Write-Host "  4) vscode   ... VS Code で開く"
+        Write-Host "  5) cursor   ... Cursor で開く"
+        Write-Host "  6) run      ... ollama run で起動（初回取得用）"
         $choice = Read-Host "番号を入力 (0 でキャンセル)"
         if ($choice -eq '0' -or [string]::IsNullOrWhiteSpace($choice)) { return }
         if ($choice -eq '1') { $Launch = $true }
@@ -546,7 +565,9 @@ function pera {
             else { codex }
             return
         }
-        elseif ($choice -eq '4') { $Run = $true }
+        elseif ($choice -eq '4') { Open-Editor 'vscode'; return }
+        elseif ($choice -eq '5') { Open-Editor 'cursor'; return }
+        elseif ($choice -eq '6') { $Run = $true }
         else {
             Write-Error "無効な番号です。"
             return

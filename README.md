@@ -1,10 +1,10 @@
 # pera
 
-**P**ick **E**asy **R**un **A**gents — AI エージェント（claude / codex / opencode）を簡単に選んで起動するツールです。
+**P**ick **E**asy **R**un **A**gents — AI エージェントを選んで起動する、シンプルなランチャーです。
 
-PowerShell / bash で Ollama モデルと AI CLI（claude / codex）を選択式メニューから起動します。
+`pera` を実行すると、モデルやツールを番号で選ぶだけで起動できます。MCP サーバーの設定も、各ツールへの同期をまとめて行えます。
 
-Windows と macOS の両方に対応しています。
+Windows（PowerShell）と macOS（bash / zsh）の両方に対応しています。
 
 ## インストール
 
@@ -30,9 +30,7 @@ echo 'source ~/.pera/pera.sh' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-> 手動で入れる場合は、`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）をプロファイルから読み込んでください。
-
-## デモ
+## 使い方
 
 `pera` を実行すると、モデル一覧から番号で選ぶだけです。
 
@@ -64,53 +62,15 @@ source ~/.zshrc
 ```
 起動方法を選択してください (glm-5.2):
   1) opencode ... ollama launch opencode で起動
-  2) claude   ... claude --dangerously-skip-permissions で起動
+  2) claude   ... claude で起動
   3) codex    ... codex で起動
-  4) run      ... ollama run で起動（初回取得用）
+  4) vscode   ... VS Code で開く
+  5) cursor   ... Cursor で開く
+  6) run      ... ollama run で起動（初回取得用）
 番号を入力 (0 でキャンセル):
 ```
 
 claude を選ぶと dangerous モード、codex を選ぶと yolo モードを使うか確認されます。
-
-```
-claude を dangerous モードで起動しますか? (y/N):
-```
-
-## 機能
-
-- **モデル選択メニュー**: `pera` を実行すると Ollama モデル一覧から選択できます
-- **claude / codex 起動**: モデル選択メニューから claude（dangerous モード対応）と codex（yolo モード対応）も起動できます
-- **起動方法の選択**: opencode（`ollama launch`）/ claude / codex / run（`ollama run`）から選択
-
-## 必要環境
-
-| ツール | 用途 |
-| --- | --- |
-| [Ollama](https://ollama.com/) | opencode / run を使う場合 |
-| [Claude Code](https://claude.com/) | claude を使う場合 |
-| [Codex](https://openai.com/codex/) | codex を使う場合 |
-
-## モデルの追加
-
-`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）のモデル定義に追記します。
-
-### Windows (PowerShell)
-
-```powershell
-$script:OllamaModels = @{
-    'glm-5.2' = 'glm-5.2:cloud'
-    # ここに追加
-}
-```
-
-### macOS (bash)
-
-```bash
-declare -A OLLAMA_MODELS=(
-    ['glm-5.2']='glm-5.2:cloud'
-    # ここに追加
-)
-```
 
 ## MCP サーバー管理
 
@@ -147,6 +107,28 @@ pera mcp install  # mcp.json を指定ツールに配布
 | opencode | `~/.config/opencode/opencode.json` |
 | vscode | `.vscode/mcp.json`（プロジェクト単位） |
 | cursor | `~/.cursor/mcp.json` |
+
+## モデルの追加
+
+`src/pera.ps1`（Windows）または `src/pera.sh`（macOS）のモデル定義に追記します。
+
+### Windows (PowerShell)
+
+```powershell
+$script:OllamaModels = @{
+    'glm-5.2' = 'glm-5.2:cloud'
+    # ここに追加
+}
+```
+
+### macOS (bash)
+
+```bash
+declare -A OLLAMA_MODELS=(
+    ['glm-5.2']='glm-5.2:cloud'
+    # ここに追加
+)
+```
 
 ## ライセンス
 

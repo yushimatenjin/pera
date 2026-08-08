@@ -276,9 +276,11 @@ pera() {
     if [[ $launch -eq 0 && $run -eq 0 ]]; then
         echo "起動方法を選択してください ($model):"
         echo "  1) opencode ... ollama launch opencode で起動"
-        echo "  2) claude   ... claude --dangerously-skip-permissions で起動"
+        echo "  2) claude   ... claude で起動"
         echo "  3) codex    ... codex で起動"
-        echo "  4) run      ... ollama run で起動（初回取得用）"
+        echo "  4) vscode   ... VS Code で開く"
+        echo "  5) cursor   ... Cursor で開く"
+        echo "  6) run      ... ollama run で起動（初回取得用）"
         read -rp "番号を入力 (0 でキャンセル): " choice
         if [[ "$choice" == "0" || -z "$choice" ]]; then return; fi
         case "$choice" in
@@ -295,7 +297,9 @@ pera() {
                 else codex; fi
                 return
                 ;;
-            4) run=1 ;;
+            4) open_editor vscode; return ;;
+            5) open_editor cursor; return ;;
+            6) run=1 ;;
             *) echo "無効な番号です。" >&2; return ;;
         esac
     fi
@@ -305,4 +309,22 @@ pera() {
     elif [[ $run -eq 1 ]]; then
         ollama run "$tag"
     fi
+}
+
+open_editor() {
+    local editor="$1"
+    local cwd
+    cwd="$(pwd)"
+    case "$editor" in
+        vscode)
+            if command -v code >/dev/null 2>&1; then code "$cwd"
+            elif [[ "$(uname)" == "Darwin" ]]; then open -a "Visual Studio Code" "$cwd"
+            else code "$cwd"; fi
+            ;;
+        cursor)
+            if command -v cursor >/dev/null 2>&1; then cursor "$cwd"
+            elif [[ "$(uname)" == "Darwin" ]]; then open -a "Cursor" "$cwd"
+            else cursor "$cwd"; fi
+            ;;
+    esac
 }
