@@ -1,6 +1,8 @@
 # pera
 
-PowerShell で Ollama モデルと AI CLI（claude / codex）を選択式メニューから起動するツールです。
+PowerShell / bash で Ollama モデルと AI CLI（claude / codex）を選択式メニューから起動するツールです。
+
+Windows と macOS の両方に対応しています。
 
 ## 機能
 
@@ -11,14 +13,15 @@ PowerShell で Ollama モデルと AI CLI（claude / codex）を選択式メニ�
 
 ## 必要環境
 
-- PowerShell 7+
-- [Ollama](https://ollama.com/)（opencode / run を使う場合）
-- [Claude Code](https://claude.com/)（claude を使う場合）
-- [Codex](https://openai.com/codex/)（codex を使う場合）
+| ツール | 用途 |
+| --- | --- |
+| [Ollama](https://ollama.com/) | opencode / run を使う場合 |
+| [Claude Code](https://claude.com/) | claude を使う場合 |
+| [Codex](https://openai.com/codex/) | codex を使う場合 |
 
 ## インストール
 
-`pera.ps1` をプロファイルから読み込みます。
+### Windows (PowerShell)
 
 ```powershell
 # プロファイルに追加
@@ -26,6 +29,14 @@ Add-Content -Path $PROFILE -Value '. "C:\path\to\pera.ps1"'
 ```
 
 または、プロファイルに直接貼り付けて使うこともできます。
+
+### macOS (bash / zsh)
+
+```bash
+# ~/.zshrc または ~/.bashrc に追加
+echo 'source /path/to/pera.sh' >> ~/.zshrc
+source ~/.zshrc
+```
 
 ## 使い方
 
@@ -53,13 +64,24 @@ claude を選ぶと dangerous モード（`--dangerously-skip-permissions`）を
 
 ## モデルの追加
 
-`pera.ps1` の `$script:OllamaModels` ハッシュテーブルに追記します。
+`pera.ps1`（Windows）または `pera.sh`（macOS）のモデル定義に追記します。
+
+### Windows (PowerShell)
 
 ```powershell
 $script:OllamaModels = @{
     'glm-5.2' = 'glm-5.2:cloud'
     # ここに追加
 }
+```
+
+### macOS (bash)
+
+```bash
+declare -A OLLAMA_MODELS=(
+    ['glm-5.2']='glm-5.2:cloud'
+    # ここに追加
+)
 ```
 
 ## ライセンス
