@@ -112,6 +112,42 @@ declare -A OLLAMA_MODELS=(
 )
 ```
 
+## MCP サーバー管理
+
+`pera mcp` で、各ツール（claude / codex / opencode / vscode / cursor）の MCP サーバー設定を一元管理できます。
+
+`mcp.json` にサーバー定義（`command` / `args` / `env`）を書き、各ツールの設定ファイルに配布します。
+
+```powershell
+pera mcp export   # 各ツールの MCP 設定を吸い出して mcp.json に集約
+pera mcp sync     # mcp.json を全ツールに配布
+pera mcp install  # mcp.json を指定ツールに配布
+```
+
+### mcp.json の形式
+
+```json
+{
+  "servers": {
+    "server-name": {
+      "command": "npx",
+      "args": ["@playwright/mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+### 対応ツールと設定ファイル
+
+| ツール | 設定ファイル |
+| --- | --- |
+| claude | `~/.claude.json` |
+| codex | `~/.codex/config.toml` |
+| opencode | `~/.config/opencode/opencode.json` |
+| vscode | `.vscode/mcp.json`（プロジェクト単位） |
+| cursor | `~/.cursor/mcp.json` |
+
 ## ライセンス
 
 [MIT](./LICENSE)

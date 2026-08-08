@@ -7,6 +7,11 @@
 #   pera -list            ... モデル一覧を表示
 #   pera -launch <model>  ... 直接 launch で起動
 #   pera -run <model>     ... 直接 run で起動
+#   pera mcp              ... MCP サーバー管理（export / sync / install）
+
+# MCP 設定ファイルの場所（リポジトリルートの mcp.json）
+PERA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MCP_CONFIG_PATH="$PERA_DIR/mcp.json"
 
 # ---- Ollama モデル定義 ----
 declare -A OLLAMA_MODELS=(
@@ -44,6 +49,165 @@ list-models() {
     done
 }
 
+# ---- MCP サーバー管理 ----
+get_mcp_servers() {
+    if [[ ! -f "$MCP_CONFIG_PATH" ]]; then
+        echo "MCP 設定ファイルが見つかりません: $MCP_CONFIG_PATH" >&2
+        return 1
+    fi
+    cat "$MCP_CONFIG_PATH"
+}
+
+get_tool_mcp_path() {
+    local tool="$1"
+    case "$tool" in
+        claude)   echo "$HOME/.claude.json" ;;
+        codex)    echo "$HOME/.codex/config.toml" ;;
+        opencode) echo "$HOME/.config/opencode/opencode.json" ;;
+        vscode)   echo "$(pwd)/.vscode/mcp.json" ;;
+        cursor)   echo "$HOME/.cursor/mcp.json" ;;
+        *) echo "不明なツール: $tool" >&2; return 1 ;;
+    esac
+}
+
+# JSON からサーバー定義を抽出して mcp.json にマージ（jq 使用）
+export_mcp_config() {
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "jq が必要です。brew install jq でインストールしてください。" >&2
+        return 1
+    fi
+    local merged="{}"
+    local tool path
+    for tool in claude codex opencode vscode cursor; do
+        path="$(get_tool_mcp_path "$tool")"
+        [[ -f "$path" ]] || continue
+        case "$tool" in
+            claude|vscode|cursor)
+                merged=$(jq -s '.[0] * .[1]' <(echo "$merged") <(jq '.mcpServers // {}' "$path"))
+                ;;
+            opencode)
+                merged=$(jq -s '.[0] * .[1]' <(echo "$merged") <(jq '.mcp // {}' "$path"))
+                ;;
+            codex)
+                # TOML は jq で直接読めないため、簡易パース
+                local name cmd args
+                while IFS= read -r line; do
+                    if [[ "$line" =~ ^\[mcp_servers\.([^\]]+)\] ]]; then
+                        name="${BASH_REMATCH[1]}"
+                        [[ "$name" == *.env ]] && continue
+                        cmd=""
+                        args="[]"
+                    elif [[ -n "$name" && "$line" =~ ^command[[:space:]]*=[[:space:]]*\'(.+)\' ]]; then
+                        cmd="${BASH_REMATCH[1]}"
+                    elif [[ -n "$name" && "$line" =~ ^args[[:space:]]*=[[:space:]]*\[(.*)\] ]]; then
+                        args="[$(echo "${BASH_REMATCH[1]}" | sed "s/'/\"/g")]"
+                    elif [[ -n "$name" && -z "$cmd" && -z "$args" ]]; then
+                        :
+                    fi
+                    if [[ -n "$name" && -n "$cmd" ]]; then
+                        merged=$(jq --arg n "$name" --arg c "$cmd" --argjson a "$args" \
+                            '.[$n] = {command: $c, args: $a, env: {}}' <<<"$merged")
+                        name=""
+                    fi
+                done < "$path"
+                ;;
+        esac
+    done
+    jq '{servers: .}' <<<"$merged" > "$MCP_CONFIG_PATH"
+    echo "MCP 設定を $MCP_CONFIG_PATH に書き出しました。"
+}
+
+# mcp.json のサーバーを指定ツールに配布
+install_mcp_to_tool() {
+    local tool="$1"
+    local path servers
+    path="$(get_tool_mcp_path "$tool")" || return 1
+    servers="$(get_mcp_servers)" || return 1
+    case "$tool" in
+        claude|vscode|cursor)
+            local dir
+            dir="$(dirname "$path")"
+            [[ -d "$dir" ]] || mkdir -p "$dir"
+            if [[ -f "$path" ]]; then
+                jq --argjson s "$(jq '.servers' <<<"$servers")" \
+                    '.mcpServers = ((.mcpServers // {}) + $s)' "$path" > "$path.tmp" && mv "$path.tmp" "$path"
+            else
+                jq --argjson s "$(jq '.servers' <<<"$servers")" \
+                    '{mcpServers: $s}' <<<"{}" > "$path"
+            fi
+            ;;
+        opencode)
+            if [[ -f "$path" ]]; then
+                jq --argjson s "$(jq '.servers' <<<"$servers")" \
+                    '.mcp = ((.mcp // {}) + $s)' "$path" > "$path.tmp" && mv "$path.tmp" "$path"
+            else
+                jq --argjson s "$(jq '.servers' <<<"$servers")" \
+                    '{mcp: $s}' <<<"{}" > "$path"
+            fi
+            ;;
+        codex)
+            # TOML 追記
+            {
+                [[ -f "$path" ]] && cat "$path"
+                echo ""
+                jq -r '.servers | to_entries[] | 
+                    "[mcp_servers." + .key + "]\ncommand = \x27" + .value.command + "\x27\nargs = [" + 
+                    (.value.args | map("\x27" + . + "\x27") | join(", ")) + "]\nenabled = true\n"' <<<"$servers"
+            } > "$path.tmp" && mv "$path.tmp" "$path"
+            ;;
+    esac
+    echo "$tool に MCP を書き込みました: $path"
+}
+
+pera_mcp() {
+    local action="$1" tool="$2"
+    if [[ -z "$action" ]]; then
+        echo "MCP 管理メニュー:"
+        echo "  1) export   ... 各ツールの MCP 設定を吸い出して mcp.json に集約"
+        echo "  2) sync     ... mcp.json を全ツールに配布"
+        echo "  3) install  ... mcp.json を指定ツールに配布"
+        read -rp "番号を入力 (0 でキャンセル): " choice
+        case "$choice" in
+            1) action="export" ;;
+            2) action="sync" ;;
+            3) action="install" ;;
+            *) return ;;
+        esac
+    fi
+    case "$action" in
+        export) export_mcp_config ;;
+        sync)
+            for t in claude codex opencode vscode cursor; do
+                install_mcp_to_tool "$t"
+            done
+            ;;
+        install)
+            if [[ -z "$tool" ]]; then
+                echo "MCP サーバーをインストールするツールを選択してください:"
+                echo "  1) claude  2) codex  3) opencode  4) vscode  5) cursor  6) すべて"
+                read -rp "番号を入力 (0 でキャンセル): " choice
+                case "$choice" in
+                    1) tool="claude" ;;
+                    2) tool="codex" ;;
+                    3) tool="opencode" ;;
+                    4) tool="vscode" ;;
+                    5) tool="cursor" ;;
+                    6) tool="all" ;;
+                    *) return ;;
+                esac
+            fi
+            if [[ "$tool" == "all" ]]; then
+                for t in claude codex opencode vscode cursor; do
+                    install_mcp_to_tool "$t"
+                done
+            else
+                install_mcp_to_tool "$tool"
+            fi
+            ;;
+        *) echo "不明なアクション: $action (export / sync / install)" >&2 ;;
+    esac
+}
+
 # ---- pera: モデル起動の選択式メニュー ----
 pera() {
     local model="" list=0 launch=0 run=0
@@ -54,6 +218,7 @@ pera() {
             -list) list=1 ;;
             -launch) launch=1; shift; model="$1" ;;
             -run) run=1; shift; model="$1" ;;
+            mcp) pera_mcp "$2" "$3"; return ;;
             *) model="$1" ;;
         esac
         shift

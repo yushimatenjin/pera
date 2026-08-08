@@ -1,0 +1,25 @@
+{
+  "servers": {
+    "xrift-studio": {
+      "command": "C:\\Users\\hagar\\AppData\\Roaming\\net.xrift.studio\\mcp\\bin\\xrift-studio-mcp-863d62e11501.exe",
+      "args": [
+        "--rendezvous",
+        "C:\\Users\\hagar\\AppData\\Roaming\\net.xrift.studio\\mcp\\rendezvous.json"
+      ],
+      "env": {}
+    },
+    "blender-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "C:/Users/hagar/workspace/work/blender_mcp/mcp",
+        "blender-mcp"
+      ],
+      "env": {
+        "BLENDER_MCP_HOST": "localhost",
+        "BLENDER_MCP_PORT": "9876"
+      }
+    }
+  }
+}
