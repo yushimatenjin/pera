@@ -293,8 +293,8 @@ pera() {
                 ;;
             3)
                 read -rp "codex を yolo モードで起動しますか? (y/N): " yolo
-                if [[ "$yolo" =~ ^[yY] ]]; then codex --dangerously-bypass-approvals-and-sandbox
-                else codex; fi
+                if [[ "$yolo" =~ ^[yY] ]]; then codex --oss --local-provider ollama -m "$tag" --dangerously-bypass-approvals-and-sandbox
+                else codex --oss --local-provider ollama -m "$tag"; fi
                 return
                 ;;
             4) open_editor vscode; return ;;

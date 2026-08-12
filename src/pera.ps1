@@ -561,8 +561,8 @@ function pera {
         }
         elseif ($choice -eq '3') {
             $yolo = Read-Host "codex を yolo モードで起動しますか? (y/N)"
-            if ($yolo -match '^[yY]') { codex --dangerously-bypass-approvals-and-sandbox }
-            else { codex }
+            if ($yolo -match '^[yY]') { codex --oss --local-provider ollama -m $tag --dangerously-bypass-approvals-and-sandbox }
+            else { codex --oss --local-provider ollama -m $tag }
             return
         }
         elseif ($choice -eq '4') { Open-Editor 'vscode'; return }
